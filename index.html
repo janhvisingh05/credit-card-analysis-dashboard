@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Credit Card Analysis</title>
+
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <!-- Plotly -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Credit Card Analysis</h1>
+    </header>
+
+    <div class="upload-section">
+        <form method="POST" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".xlsx" required>
+            <button type="submit">Upload</button>
+        </form>
+    </div>
+
+    {% if summary_metrics %}
+    <div class="summary-metrics">
+        {% for metric in summary_metrics %}
+        <div class="card pastel{{ loop.index0 % 2 }}">
+            <div class="card-icon">
+                {% if "Customer" in metric.label %}
+                    <i class="fas fa-users"></i>
+                {% elif "Age" in metric.label %}
+                    <i class="fas fa-user-clock"></i>
+                {% elif "Limit" in metric.label %}
+                    <i class="fas fa-wallet"></i>
+                {% elif "Spent" in metric.label %}
+                    <i class="fas fa-credit-card"></i>
+                {% elif "Repaid" in metric.label %}
+                    <i class="fas fa-rotate-right"></i>
+                {% else %}
+                    <i class="fas fa-circle-info"></i>
+                {% endif %}
+            </div>
+            <div class="card-title">{{ metric.label }}</div>
+            <div class="card-value">{{ metric.value }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if insights %}
+    <div class="insights-section">
+        <h3>📌 Key Insights</h3>
+        <ul style="padding-left: 0; list-style-type: none;">
+            {% for insight in insights %}
+            <li class="insight-bubble pastel{{ loop.index0 }}">{{ insight }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if graphs %}
+    <div class="tabs">
+        {% for tab, graph_list in graphs.items() %}
+        <button class="tab-button pastel{{ loop.index0 }}" onclick="showTab('{{ tab }}')" aria-controls="{{ tab }}">{{ tab }}</button>
+        {% endfor %}
+    </div>
+
+    {% for tab, graph_list in graphs.items() %}
+    <div id="{{ tab }}" class="tab-content" style="display: none;">
+        <div class="graph-grid">
+            {% for graph in graph_list %}
+            <div class="graph-card">{{ graph | safe }}</div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <script>
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.style.display = 'none');
+            document.getElementById(tabName).style.display = 'block';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const firstTab = document.querySelector('.tab-content');
+            if (firstTab) firstTab.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
